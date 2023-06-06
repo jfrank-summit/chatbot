@@ -1,0 +1,14 @@
+{
+  "name": "@subspace-chatbot/web",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-scripts": "3.4.3"
+  }
+}

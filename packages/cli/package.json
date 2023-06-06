@@ -1,0 +1,11 @@
+{
+  "name": "@subspace-chatbot/cli",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "ts-node": "^10.2.1"
+  }
+}
