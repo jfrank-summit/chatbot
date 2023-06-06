@@ -1,0 +1,7 @@
+{
+  "name": "subspace-chatbot",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
