@@ -5,6 +5,8 @@ import { chatWithHistory } from './prompts';
 import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
 import { Document } from 'langchain/document';
 import { TimeWeightedVectorStoreRetriever } from 'langchain/retrievers/time_weighted';
+import { PineconeClient } from '@pinecone-database/pinecone';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
 
 interface ChatConfig {
   temperature: number;
@@ -17,9 +19,17 @@ const defaultConfig: ChatConfig = {
   modelName: 'gpt-3.5-turbo',
 };
 
-export const conversation = (config = defaultConfig) => {
+export const conversation = async (config = defaultConfig) => {
   const chat = new ChatOpenAI(config);
-  const vectorStore = new MemoryVectorStore(new OpenAIEmbeddings());
+  const client = new PineconeClient();
+  await client.init({
+    apiKey: process.env.PINECONE_API_KEY || '',
+    environment: 'us-west4-gcp',
+  });
+  const pineconeIndex = client.Index('test-index');
+  const vectorStore = await PineconeStore.fromExistingIndex(new OpenAIEmbeddings(), {
+    pineconeIndex,
+  });
 
   const retriever = new TimeWeightedVectorStoreRetriever({
     vectorStore,

@@ -9,6 +9,7 @@
     "format": "prettier --write '**/*.ts'"
   },
   "dependencies": {
+    "@pinecone-database/pinecone": "^0.1.6",
     "langchain": "^0.0.84"
   },
   "devDependencies": {
