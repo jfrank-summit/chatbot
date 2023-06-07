@@ -18,7 +18,7 @@ const question = (prompt: string): Promise<string> => {
 };
 
 const main = async () => {
-  const conv = conversation();
+  const conv = await conversation();
 
   while (true) {
     const input = await question('user: ');
