@@ -1,15 +1,10 @@
 import { ChatOpenAI } from 'langchain/chat_models/openai';
-import * as dotenv from 'dotenv';
-import { PromptTemplate } from 'langchain/prompts';
-import { ConversationChain } from 'langchain/chains';
-import { VectorStoreRetrieverMemory } from 'langchain/memory';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
-import { chatPromptTemplate } from './prompts';
-import { BaseChatMessage, HumanChatMessage, SystemChatMessage } from 'langchain/schema';
+import { chatWithHistory } from './prompts';
+import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
 import { Document } from 'langchain/document';
-
-dotenv.config();
+import { TimeWeightedVectorStoreRetriever } from 'langchain/retrievers/time_weighted';
 
 interface ChatConfig {
   temperature: number;
@@ -22,27 +17,32 @@ const defaultConfig: ChatConfig = {
   modelName: 'gpt-3.5-turbo',
 };
 
-export const conversation = () => {
-  const chat = new ChatOpenAI(defaultConfig);
+export const conversation = (config = defaultConfig) => {
+  const chat = new ChatOpenAI(config);
   const vectorStore = new MemoryVectorStore(new OpenAIEmbeddings());
 
-  const converse = async (input: string) => {
-    const search = await vectorStore.similaritySearch(input, 2);
+  const retriever = new TimeWeightedVectorStoreRetriever({
+    vectorStore,
+    memoryStream: [],
+    k: 3,
+    searchKwargs: 5,
+  });
+
+  const searchForRelevant = async (input: string) => {
+    const search = await retriever.getRelevantDocuments(input); //await vectorStore.similaritySearch(input, 2);
+    console.log(`doc count: ${search.length}`);
     const relevantHistory = search.reduce((acc, doc) => `${acc}\n${doc.pageContent}`, '');
-    const systemMessage = `The following is a friendly conversation between a human and an AI. 
-        The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
+    return relevantHistory;
+  };
 
-        Relevant pieces of previous conversation:
-        ${relevantHistory}
+  const converse = async (input: string) => {
+    const relevantHistory = await searchForRelevant(input);
+    const history = chatWithHistory(relevantHistory, input);
+    console.log(`history: ${history}`);
 
-        (You do not need to use these pieces of information if not relevant)`;
-    console.log(systemMessage);
-    const response: BaseChatMessage = await chat.call([
-      new SystemChatMessage(systemMessage),
-      new HumanChatMessage(input),
-    ]);
+    const response = await chat.call([new SystemChatMessage(history), new HumanChatMessage(input)]);
     const doc = new Document({ pageContent: `human: ${input}\nai: ${response.text}\n` });
-    vectorStore.addDocuments([doc]);
+    retriever.addDocuments([doc]);
     return { response: response.text };
   };
 
