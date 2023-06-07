@@ -1,3 +1,1 @@
-import { conversationChain } from './chat'
-
-export { conversationChain as initChain }
+export { conversation } from './chat'

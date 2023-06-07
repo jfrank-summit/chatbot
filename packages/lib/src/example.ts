@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv'
 import * as readline from 'readline'
-import { conversationChain } from './chat'
+import { conversation } from './chat'
 
 dotenv.config()
 
@@ -18,12 +18,12 @@ const question = (prompt: string): Promise<string> => {
 }
 
 const main = async () => {
-  const chain = await conversationChain()
+  const conv = conversation()
 
   while (true) {
     const input = await question('user: ')
-    const action = await chain.call({ input })
-    console.log(`response: ${action.response}`)
+    const action = await conv.converse(input)
+    console.log(`response: ${JSON.stringify(action.response)}`)
   }
 }
 main().catch(console.error)
