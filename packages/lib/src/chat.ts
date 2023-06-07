@@ -33,8 +33,8 @@ const dirToDocs = async (dir: string) => {
     '.pdf': path => new PDFLoader(path),
   });
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 500,
-    chunkOverlap: 100,
+    chunkSize: 1500,
+    chunkOverlap: 250,
   });
   const docs = await loader.loadAndSplit(splitter);
   return docs;
@@ -60,7 +60,7 @@ export const conversation = async (config = defaultConfig) => {
     console.log(`doc count: ${searchConv.length}`);
     const relevantHistory = searchConv.reduce((acc, doc) => `${acc}\n${doc.pageContent}`, '');
 
-    const searchKb = await kbVectorStore.similaritySearch(input, 2);
+    const searchKb = await kbVectorStore.similaritySearch(input, 4);
     const relevantKb = searchKb.reduce((acc, doc) => `${acc}\n${doc.pageContent}`, '');
 
     return { relevantHistory, relevantKb };
