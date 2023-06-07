@@ -1,1 +1,1 @@
-export { conversation } from './chat'
+export { conversation } from './chat';

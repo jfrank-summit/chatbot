@@ -7,4 +7,4 @@ export const chatPromptTemplate = `The following is a friendly conversation betw
 
         Current conversation:
         Human: {input}
-        AI:`
+        AI:`;

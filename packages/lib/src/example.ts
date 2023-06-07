@@ -1,29 +1,29 @@
-import * as dotenv from 'dotenv'
-import * as readline from 'readline'
-import { conversation } from './chat'
+import * as dotenv from 'dotenv';
+import * as readline from 'readline';
+import { conversation } from './chat';
 
-dotenv.config()
+dotenv.config();
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
-})
+  output: process.stdout,
+});
 
 const question = (prompt: string): Promise<string> => {
   return new Promise(resolve => {
     rl.question(prompt, input => {
-      resolve(input)
-    })
-  })
-}
+      resolve(input);
+    });
+  });
+};
 
 const main = async () => {
-  const conv = conversation()
+  const conv = conversation();
 
   while (true) {
-    const input = await question('user: ')
-    const action = await conv.converse(input)
-    console.log(`response: ${JSON.stringify(action.response)}`)
+    const input = await question('user: ');
+    const action = await conv.converse(input);
+    console.log(`response: ${JSON.stringify(action.response)}`);
   }
-}
-main().catch(console.error)
+};
+main().catch(console.error);
