@@ -1,7 +1,7 @@
 {
   "name": "@subspace-chatbot/lib",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "example": "ts-node src/example.ts",

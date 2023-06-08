@@ -18,12 +18,12 @@ const defaultConfig: ChatConfig = {
   modelName: 'gpt-3.5-turbo',
 };
 
-export const conversation = async (config = defaultConfig) => {
+export const createChat = async (config = defaultConfig) => {
   const chat = new ChatOpenAI(config);
   const convVectorStore = new MemoryVectorStore(new OpenAIEmbeddings());
   const kbVectorStore = new MemoryVectorStore(new OpenAIEmbeddings());
+
   const kbDocs = await dirToDocs('data');
-  console.log(`kbDocs: ${JSON.stringify(kbDocs.length)}`);
   kbVectorStore.addDocuments(kbDocs);
 
   const convRetriever = new TimeWeightedVectorStoreRetriever({
@@ -33,21 +33,25 @@ export const conversation = async (config = defaultConfig) => {
     searchKwargs: 5,
   });
 
-  const searchForRelevant = async (input: string) => {
-    const searchConv = await convRetriever.getRelevantDocuments(input); //await vectorStore.similaritySearch(input, 2);
-    console.log(`doc count: ${searchConv.length}`);
-    const relevantHistory = searchConv.reduce((acc, doc) => `${acc}\n${doc.pageContent}`, '');
+  const searchHistory = async (input: string) => {
+    const searchConv = await convRetriever.getRelevantDocuments(input); 
+    return searchConv.reduce((acc, doc) => `${acc}\n${doc.pageContent}`, '');
+  };
 
+  const searchKb = async (input: string) => {
     const searchKb = await kbVectorStore.similaritySearch(input, 4);
-    const relevantKb = searchKb.reduce((acc, doc) => `${acc}\n${doc.pageContent}`, '');
+    return searchKb.reduce((acc, doc) => `${acc}\n${doc.pageContent}`, '');
+  };
 
+  const searchForRelevant = async (input: string) => {
+    const relevantHistory = await searchHistory(input);
+    const relevantKb = await searchKb(input);
     return { relevantHistory, relevantKb };
   };
 
   const converse = async (input: string) => {
     const { relevantHistory, relevantKb } = await searchForRelevant(input);
     const history = chatWithHistory(relevantHistory, relevantKb);
-    console.log(`history: ${history}`);
 
     const response = await chat.call([new SystemChatMessage(history), new HumanChatMessage(input)]);
     const doc = new Document({ pageContent: `human: ${input}\nai: ${response.text}\n` });

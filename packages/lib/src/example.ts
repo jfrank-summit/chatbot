@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as readline from 'readline';
-import { conversation } from './chat';
+import { createChat } from './chat';
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ const question = (prompt: string): Promise<string> => {
 };
 
 const main = async () => {
-  const conv = await conversation();
+  const conv = await createChat();
 
   while (true) {
     const input = await question('user: ');

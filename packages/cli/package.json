@@ -6,6 +6,7 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "ts-node": "^10.2.1"
+    "ts-node": "^10.2.1",
+    "@subspace-chatbot/lib": "*"
   }
 }
