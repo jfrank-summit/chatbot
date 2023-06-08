@@ -5,13 +5,7 @@ import { chatWithHistory } from './prompts';
 import { HumanChatMessage, SystemChatMessage } from 'langchain/schema';
 import { Document } from 'langchain/document';
 import { TimeWeightedVectorStoreRetriever } from 'langchain/retrievers/time_weighted';
-
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
-import { JSONLoader, JSONLinesLoader } from 'langchain/document_loaders/fs/json';
-import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { CSVLoader } from 'langchain/document_loaders/fs/csv';
-import { PDFLoader } from 'langchain/document_loaders/fs/pdf';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { dirToDocs } from './documentLoader';
 
 interface ChatConfig {
   temperature: number;
@@ -22,22 +16,6 @@ const defaultConfig: ChatConfig = {
   temperature: 0.9,
   openAIApiKey: process.env.OPENAI_API_KEY,
   modelName: 'gpt-3.5-turbo',
-};
-
-const dirToDocs = async (dir: string) => {
-  const loader = new DirectoryLoader(dir, {
-    '.json': path => new JSONLoader(path, '/texts'),
-    '.jsonl': path => new JSONLinesLoader(path, '/html'),
-    '.txt': path => new TextLoader(path),
-    '.csv': path => new CSVLoader(path, 'text'),
-    '.pdf': path => new PDFLoader(path),
-  });
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1500,
-    chunkOverlap: 250,
-  });
-  const docs = await loader.loadAndSplit(splitter);
-  return docs;
 };
 
 export const conversation = async (config = defaultConfig) => {
