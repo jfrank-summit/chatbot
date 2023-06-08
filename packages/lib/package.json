@@ -9,7 +9,7 @@
     "format": "prettier --write '**/*.ts'"
   },
   "dependencies": {
-    "langchain": "^0.0.84",
+    "langchain": "^0.0.92",
     "pdf-parse": "^1.1.1"
   },
   "devDependencies": {
